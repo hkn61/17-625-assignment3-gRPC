@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+import "User.proto";
+
+message Comment {
+    string id = 1;
+    string content = 2;
+    User author = 3;
+    int32 score = 4;
+    enum Status {
+        NORMAL = 0;
+        HIDDEN = 1;
+    }
+    Status status = 5;
+    string publication_date = 6;
+    string parent_id = 7; // ID of the parent post or comment
+}

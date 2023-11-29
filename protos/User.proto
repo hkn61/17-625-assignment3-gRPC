@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+message User {
+    string user_id = 1; // Human-readable user ID
+}
