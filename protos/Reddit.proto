@@ -1,0 +1,116 @@
+syntax = "proto3";
+
+service RedditService {
+    rpc CreatePost(CreatePostRequest) returns (CreatePostResponse);
+    rpc UpvotePost(VoteRequest) returns (VoteResponse);
+    rpc DownvotePost(VoteRequest) returns (VoteResponse);
+    rpc RetrievePostContent(RetrievePostRequest) returns (RetrievePostResponse);
+    rpc CreateComment(CreateCommentRequest) returns (CreateCommentResponse);
+    rpc UpvoteComment(VoteCommentRequest) returns (VoteCommentResponse);
+    rpc DownvoteComment(VoteCommentRequest) returns (VoteCommentResponse);
+    rpc GetTopComments(GetTopCommentsRequest) returns (GetTopCommentsResponse);
+}
+
+message CreatePostRequest {
+    Post post = 1;
+}
+
+message CreatePostResponse {
+    Post post = 1;
+}
+
+message VoteRequest {
+    string post_id = 1;
+}
+
+message VoteResponse {
+    Post post = 1;
+}
+
+message RetrievePostRequest {
+    string post_id = 1;
+}
+
+message RetrievePostResponse {
+    Post post = 1;
+}
+
+message CreateCommentRequest {
+    Comment comment = 1;
+}
+
+message CreateCommentResponse {
+    Comment comment = 1;
+}
+
+message VoteCommentRequest {
+    string comment_id = 1;
+}
+
+message VoteCommentResponse {
+    Comment comment = 1;
+}
+
+message GetTopCommentsRequest {
+    string post_id = 1;
+    int32 number_of_comments = 2;
+}
+
+message GetTopCommentsResponse {
+    repeated CommentWithReplies comments = 1;
+}
+
+message CommentWithReplies {
+    Comment comment = 1;
+    bool has_replies = 2;
+}
+
+message User {
+    string user_id = 1;
+}
+
+message Post {
+    string id = 1;
+    string title = 2;
+    string text = 3;
+    oneof multimedia {
+        string video_url = 4;
+        string image_url = 5;
+    }
+    User author = 6; // Author is optional
+    int32 score = 7;
+    enum State {
+        NORMAL = 0;
+        LOCKED = 1;
+        HIDDEN = 2; // Hidden is another word for deleted
+    }
+    State state = 8;
+    string publication_date = 9;
+    Subreddit subreddit = 10; // Reference to the subreddit
+}
+
+message Subreddit {
+    string id = 1;
+    string name = 2;
+    enum Visibility {
+        PUBLIC = 0;
+        PRIVATE = 1;
+        HIDDEN = 2;
+    }
+    Visibility visibility = 3;
+    repeated string tags = 4; // Tags attached to posts
+}
+
+message Comment {
+    string id = 1;
+    string content = 2;
+    User author = 3;
+    int32 score = 4;
+    enum Status {
+        NORMAL = 0;
+        HIDDEN = 1;
+    }
+    Status status = 5;
+    string publication_date = 6;
+    string parent_id = 7; // ID of the parent post or comment
+}
