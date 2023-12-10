@@ -9,6 +9,8 @@ service RedditService {
     rpc UpvoteComment(VoteCommentRequest) returns (VoteCommentResponse);
     rpc DownvoteComment(VoteCommentRequest) returns (VoteCommentResponse);
     rpc GetTopComments(GetTopCommentsRequest) returns (GetTopCommentsResponse);
+    rpc ExpandCommentBranch(ExpandCommentBranchRequest) returns (ExpandCommentBranchResponse);
+    rpc MonitorUpdates(stream MonitorUpdatesRequest) returns (stream MonitorUpdatesResponse);
 }
 
 message CreatePostRequest {
@@ -65,6 +67,34 @@ message CommentWithReplies {
     bool has_replies = 2;
 }
 
+message ExpandCommentBranchRequest {
+    string comment_id = 1;
+    int32 number_of_comments = 2;
+}
+
+message ExpandCommentBranchResponse {
+    repeated CommentBranch comments = 1;
+}
+
+message CommentBranch {
+    Comment comment = 1;
+    repeated Comment sub_comments = 2; // Most upvoted comments under this comment
+}
+
+message MonitorUpdatesRequest {
+    oneof request_type {
+        string post_id = 1;
+        string comment_id = 2;
+    }
+}
+
+message MonitorUpdatesResponse {
+    oneof update_type {
+        Post post = 1;
+        Comment comment = 2;
+    }
+}
+
 message User {
     string user_id = 1;
 }
@@ -104,7 +134,7 @@ message Subreddit {
 message Comment {
     string id = 1;
     string content = 2;
-    User author = 3;
+    string author = 3;
     int32 score = 4;
     enum Status {
         NORMAL = 0;

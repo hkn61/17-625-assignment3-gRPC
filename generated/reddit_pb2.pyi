@@ -88,6 +88,44 @@ class CommentWithReplies(_message.Message):
     has_replies: bool
     def __init__(self, comment: _Optional[_Union[Comment, _Mapping]] = ..., has_replies: bool = ...) -> None: ...
 
+class ExpandCommentBranchRequest(_message.Message):
+    __slots__ = ["comment_id", "number_of_comments"]
+    COMMENT_ID_FIELD_NUMBER: _ClassVar[int]
+    NUMBER_OF_COMMENTS_FIELD_NUMBER: _ClassVar[int]
+    comment_id: str
+    number_of_comments: int
+    def __init__(self, comment_id: _Optional[str] = ..., number_of_comments: _Optional[int] = ...) -> None: ...
+
+class ExpandCommentBranchResponse(_message.Message):
+    __slots__ = ["comments"]
+    COMMENTS_FIELD_NUMBER: _ClassVar[int]
+    comments: _containers.RepeatedCompositeFieldContainer[CommentBranch]
+    def __init__(self, comments: _Optional[_Iterable[_Union[CommentBranch, _Mapping]]] = ...) -> None: ...
+
+class CommentBranch(_message.Message):
+    __slots__ = ["comment", "sub_comments"]
+    COMMENT_FIELD_NUMBER: _ClassVar[int]
+    SUB_COMMENTS_FIELD_NUMBER: _ClassVar[int]
+    comment: Comment
+    sub_comments: _containers.RepeatedCompositeFieldContainer[Comment]
+    def __init__(self, comment: _Optional[_Union[Comment, _Mapping]] = ..., sub_comments: _Optional[_Iterable[_Union[Comment, _Mapping]]] = ...) -> None: ...
+
+class MonitorUpdatesRequest(_message.Message):
+    __slots__ = ["post_id", "comment_id"]
+    POST_ID_FIELD_NUMBER: _ClassVar[int]
+    COMMENT_ID_FIELD_NUMBER: _ClassVar[int]
+    post_id: str
+    comment_id: str
+    def __init__(self, post_id: _Optional[str] = ..., comment_id: _Optional[str] = ...) -> None: ...
+
+class MonitorUpdatesResponse(_message.Message):
+    __slots__ = ["post", "comment"]
+    POST_FIELD_NUMBER: _ClassVar[int]
+    COMMENT_FIELD_NUMBER: _ClassVar[int]
+    post: Post
+    comment: Comment
+    def __init__(self, post: _Optional[_Union[Post, _Mapping]] = ..., comment: _Optional[_Union[Comment, _Mapping]] = ...) -> None: ...
+
 class User(_message.Message):
     __slots__ = ["user_id"]
     USER_ID_FIELD_NUMBER: _ClassVar[int]
@@ -163,9 +201,9 @@ class Comment(_message.Message):
     PARENT_ID_FIELD_NUMBER: _ClassVar[int]
     id: str
     content: str
-    author: User
+    author: str
     score: int
     status: Comment.Status
     publication_date: str
     parent_id: str
-    def __init__(self, id: _Optional[str] = ..., content: _Optional[str] = ..., author: _Optional[_Union[User, _Mapping]] = ..., score: _Optional[int] = ..., status: _Optional[_Union[Comment.Status, str]] = ..., publication_date: _Optional[str] = ..., parent_id: _Optional[str] = ...) -> None: ...
+    def __init__(self, id: _Optional[str] = ..., content: _Optional[str] = ..., author: _Optional[str] = ..., score: _Optional[int] = ..., status: _Optional[_Union[Comment.Status, str]] = ..., publication_date: _Optional[str] = ..., parent_id: _Optional[str] = ...) -> None: ...
