@@ -63,7 +63,7 @@ comments = {
         "score": 3,
         "status": reddit_pb2.Comment.NORMAL,
         "publication_date": "2021-01-01",
-        "parent_id": "123"
+        "parent_id": "post123"
     }
 }
 
@@ -108,7 +108,7 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
     
     def RetrievePostContent(self, request, context):
         post_id = request.post_id
-        if post_id not in posts:
+        if post_id not in posts.keys():
             context.abort(grpc.StatusCode.NOT_FOUND, "Post not found")
         return reddit_pb2.RetrievePostResponse(post=reddit_pb2.Post(
             id=post_id,

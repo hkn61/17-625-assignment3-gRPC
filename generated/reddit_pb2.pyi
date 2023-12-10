@@ -157,12 +157,12 @@ class Post(_message.Message):
     text: str
     video_url: str
     image_url: str
-    author: User
+    author: str
     score: int
     state: Post.State
     publication_date: str
     subreddit: Subreddit
-    def __init__(self, id: _Optional[str] = ..., title: _Optional[str] = ..., text: _Optional[str] = ..., video_url: _Optional[str] = ..., image_url: _Optional[str] = ..., author: _Optional[_Union[User, _Mapping]] = ..., score: _Optional[int] = ..., state: _Optional[_Union[Post.State, str]] = ..., publication_date: _Optional[str] = ..., subreddit: _Optional[_Union[Subreddit, _Mapping]] = ...) -> None: ...
+    def __init__(self, id: _Optional[str] = ..., title: _Optional[str] = ..., text: _Optional[str] = ..., video_url: _Optional[str] = ..., image_url: _Optional[str] = ..., author: _Optional[str] = ..., score: _Optional[int] = ..., state: _Optional[_Union[Post.State, str]] = ..., publication_date: _Optional[str] = ..., subreddit: _Optional[_Union[Subreddit, _Mapping]] = ...) -> None: ...
 
 class Subreddit(_message.Message):
     __slots__ = ["id", "name", "visibility", "tags"]

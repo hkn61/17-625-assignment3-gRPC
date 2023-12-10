@@ -107,7 +107,7 @@ message Post {
         string video_url = 4;
         string image_url = 5;
     }
-    User author = 6; // Author is optional
+    string author = 6; // Author is optional
     int32 score = 7;
     enum State {
         NORMAL = 0;
