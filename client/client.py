@@ -10,6 +10,7 @@ import reddit_pb2
 import reddit_pb2_grpc
 
 class RedditClient:
+
     def __init__(self, host, port):
         self.channel = grpc.insecure_channel(f"{host}:{port}")
         self.stub = reddit_pb2_grpc.RedditServiceStub(self.channel)
@@ -23,28 +24,24 @@ class RedditClient:
             id="post233",
             title="reddit gRPC post 1",
             text="This is a reddit gRPC post",
-            video_url="https://www.youtube.com/watch?v=123456",
-            author=reddit_pb2.User(user_id="userAlex"),
             score=3,
+            video_url="https://www.youtube.com/watch?v=123456",
+            author="userAlex",
             state=reddit_pb2.Post.NORMAL,
             publication_date="2021-01-01",
-            subreddit=reddit_pb2.Subreddit(
-                name="gRPC Subreddit",
-                visibility=reddit_pb2.Subreddit.PUBLIC,
-                tags=["grpc", "test"]
-            )
+            subreddit="subreddit234"
         )
         response = self.stub.CreatePost(reddit_pb2.CreatePostRequest(post=post))
         print("Post created:", response.post)
         return response.post
 
     def runUpvotePost(self):
-        response = self.stub.UpvotePost(reddit_pb2.VoteRequest(post_id="post123"))
+        response = self.stub.UpvotePost(reddit_pb2.VoteRequest(post_id="post233"))
         print("Post upvoted:", response)
         return response.post
 
     def runDownvotePost(self):
-        response = self.stub.DownvotePost(reddit_pb2.VoteRequest(post_id="post234"))
+        response = self.stub.DownvotePost(reddit_pb2.VoteRequest(post_id="post233"))
         print("Post downvoted:", response)
         return response.post
 
@@ -57,7 +54,7 @@ class RedditClient:
         comment = reddit_pb2.Comment(
             id="comment233",
             content="This is a newly created comment",
-            author=reddit_pb2.User(user_id="userChris"),
+            author="userChris",
             score=1,
             status=reddit_pb2.Comment.NORMAL,
             publication_date="2023-01-01",
@@ -68,12 +65,12 @@ class RedditClient:
         return response.comment
 
     def runUpvoteComment(self):
-        response = self.stub.UpvoteComment(reddit_pb2.VoteCommentRequest(comment_id="comment123"))
+        response = self.stub.UpvoteComment(reddit_pb2.VoteCommentRequest(comment_id="comment233"))
         print("Comment upvoted:", response)
         return response.comment
 
     def runDownvoteComment(self):
-        response = self.stub.DownvoteComment(reddit_pb2.VoteCommentRequest(comment_id="comment456"))
+        response = self.stub.DownvoteComment(reddit_pb2.VoteCommentRequest(comment_id="comment233"))
         print("Comment downvoted:", response)
         return response.comment
 
@@ -148,9 +145,10 @@ def most_upvoted(api_client, post_id):
 
 if __name__ == '__main__':
     client = RedditClient("localhost", 50051)
-    post, top_reply = most_upvoted(client, "post234")
-    # print("----------- Post:", post)
-    print("----------- Top Reply:", top_reply if top_reply else "No replies found")
+    # top_reply = most_upvoted(client, "post234")
+    # print("----------- Top Reply:", top_reply if top_reply else "No replies found")
+
+    client.runDownvoteComment()
     
     # try:
     #     client.runExpandCommentBranch("comment456", 1)  

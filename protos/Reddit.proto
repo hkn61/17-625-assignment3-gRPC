@@ -116,7 +116,7 @@ message Post {
     }
     State state = 8;
     string publication_date = 9;
-    Subreddit subreddit = 10; // Reference to the subreddit
+    string subreddit = 10; // Reference to the subreddit id
 }
 
 message Subreddit {

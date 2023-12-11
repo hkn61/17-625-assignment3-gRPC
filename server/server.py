@@ -10,6 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'g
 import grpc
 import reddit_pb2
 import reddit_pb2_grpc
+import sqlite
 
 posts = {
     "post123": {
@@ -22,11 +23,7 @@ posts = {
         "author": "userAlex",
         "state": reddit_pb2.Post.NORMAL,
         "publication_date": "2021-01-01",
-        "subreddit": reddit_pb2.Subreddit(
-            name="gRPC Subreddit",
-            visibility=reddit_pb2.Subreddit.PUBLIC,
-            tags=["grpc", "test"]
-        )
+        "subreddit": "subreddit123"
     },  # Example post
     "post234": {
         "id": "post234",
@@ -38,11 +35,7 @@ posts = {
         "author": "userBob",
         "state": reddit_pb2.Post.NORMAL,
         "publication_date": "2021-01-01",
-        "subreddit": reddit_pb2.Subreddit(
-            name="gRPC Subreddit2",
-            visibility=reddit_pb2.Subreddit.PUBLIC,
-            tags=["grpc", "test"]
-        )
+        "subreddit": "subreddit123"
     },  # Example post
 }
 
@@ -67,9 +60,40 @@ comments = {
     }
 }
 
+post_state_map = {
+    0: "NORMAL",    
+    1: "LOCKED",
+    2: "HIDDEN"
+}
+
+comment_status_map = {
+    0: "NORMAL",    
+    1: "HIDDEN"
+}
+
 class RedditService(reddit_pb2_grpc.RedditServiceServicer):
+    def get_state(self, state_int):
+        if state_int == 0:
+            state = reddit_pb2.Post.NORMAL
+        elif state_int == 1:
+            state = reddit_pb2.Post.LOCKED
+        elif state_int == 2:
+            state = reddit_pb2.Post.HIDDEN
+        return state
+    
+    def get_status(self, status_int):
+        if status_int == 0:
+            status = reddit_pb2.Comment.NORMAL
+        elif status_int == 1:
+            status = reddit_pb2.Comment.HIDDEN
+        return status
+
     def CreatePost(self, request, context):
         post = request.post
+        # print("post:", post.state)
+        state_str = post_state_map[post.state]
+        # print("state_str:", state_str)
+        state = self.get_state(post.state)
         posts[post.id] = {
             "title": post.title if post.title else "",
             "text": post.text if post.text else "",
@@ -77,54 +101,59 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
             "video_url": post.video_url if post.video_url else "",
             "image_url": post.image_url if post.image_url else "",
             "author": post.author if post.author else "",
-            "state": post.state if post.state else reddit_pb2.Post.NORMAL,
+            "state": state if state else reddit_pb2.Post.NORMAL,
             "publication_date": post.publication_date if post.publication_date else "",
-            "subreddit": post.subreddit if post.subreddit else None
+            "subreddit": post.subreddit if post.subreddit else ""
         }
+        sqlite.insertPost(post.id, post.title, post.text, post.video_url, post.image_url, post.author, post.score, post.state, post.publication_date, post.subreddit)
         return reddit_pb2.CreatePostResponse(post=post)
     
     def UpvotePost(self, request, context):
         # return super().UpvotePost(request, context)
         post_id = request.post_id
-        if post_id not in posts:
+        if not sqlite.checkPostExists(post_id):
             context.abort(grpc.StatusCode.NOT_FOUND, "Post not found")
-        posts[post_id]["score"] += 1
+        score = sqlite.getPostScore(post_id) + 1
+        sqlite.updatePostScore(post_id, score)
         return reddit_pb2.VoteResponse(post=reddit_pb2.Post(
             id=post_id,
-            title=posts[post_id]["title"],
-            score=posts[post_id]["score"]
+            score=score
         ))
     
     def DownvotePost(self, request, context):
         post_id = request.post_id
-        if post_id not in posts:
+        if not sqlite.checkPostExists(post_id):
             context.abort(grpc.StatusCode.NOT_FOUND, "Post not found")
-        posts[post_id]["score"] -= 1
+        score = sqlite.getPostScore(post_id) - 1
+        sqlite.updatePostScore(post_id, score)
         return reddit_pb2.VoteResponse(post=reddit_pb2.Post(
             id=post_id,
-            title=posts[post_id]["title"],
-            score=posts[post_id]["score"]
+            score=score
         ))
     
     def RetrievePostContent(self, request, context):
         post_id = request.post_id
-        if post_id not in posts.keys():
+        if not sqlite.checkPostExists(post_id):
             context.abort(grpc.StatusCode.NOT_FOUND, "Post not found")
+        post = sqlite.retrievePost(post_id)
+        print("post:", post)
+        print("post state: ", post_state_map[int(post[7])])
         return reddit_pb2.RetrievePostResponse(post=reddit_pb2.Post(
-            id=post_id,
-            title=posts[post_id]["title"],
-            text=posts[post_id]["text"],
-            score=posts[post_id]["score"],
-            video_url=posts[post_id]["video_url"],
-            image_url=posts[post_id]["image_url"],
-            author=posts[post_id]["author"],
-            state=posts[post_id]["state"],
-            publication_date=posts[post_id]["publication_date"],
-            subreddit=posts[post_id]["subreddit"]
+            id=post[0],
+            title=post[1],
+            text=post[2],
+            video_url=post[3],
+            image_url=post[4],
+            author=post[5],
+            score=post[6],
+            state=self.get_state(int(post[7])),
+            publication_date=post[8],
+            subreddit=post[9]
         ))
     
     def CreateComment(self, request, context):
         comment = request.comment
+        status = self.get_status(comment.status)
         comments[comment.id] = {
             "content": comment.content if comment.content else "",
             "author": comment.author if comment.author else "",
@@ -133,28 +162,28 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
             "publication_date": comment.publication_date if comment.publication_date else "",
             "parent_id": comment.parent_id if comment.parent_id else ""
         }
+        sqlite.insertComment(comment.id, comment.content, comment.author, comment.score, comment.status, comment.publication_date, comment.parent_id)
         return reddit_pb2.CreateCommentResponse(comment=comment)
 
     def UpvoteComment(self, request, context):
         comment_id = request.comment_id
-        if comment_id not in comments:
+        if not sqlite.checkCommentExists(comment_id):
             context.abort(grpc.StatusCode.NOT_FOUND, "Comment not found")
-        comments[comment_id]["score"] += 1
+        score = sqlite.getCommentScore(comment_id) + 1
+        sqlite.updateCommentScore(comment_id, score)
         return reddit_pb2.VoteCommentResponse(comment=reddit_pb2.Comment(
             id=comment_id,
-            content=comments[comment_id]["content"],
-            score=comments[comment_id]["score"]
+            score=score
         ))
     
     def DownvoteComment(self, request, context):
         comment_id = request.comment_id
-        if comment_id not in comments:
+        if not sqlite.checkCommentExists(comment_id):
             context.abort(grpc.StatusCode.NOT_FOUND, "Comment not found")
-        comments[comment_id]["score"] -= 1
+        score = sqlite.getCommentScore(comment_id) - 1
         return reddit_pb2.VoteCommentResponse(comment=reddit_pb2.Comment(
             id=comment_id,
-            content=comments[comment_id]["content"],
-            score=comments[comment_id]["score"]
+            score=score
         ))
     
     def GetTopComments(self, request, context):
@@ -249,7 +278,7 @@ def _create_comment_response(comment):
     )
 
 def _create_post_response(post_data):
-    print("post_data:", post_data)
+    # print("post_data:", post_data)
     if post_data['state'] == 0:
         state = reddit_pb2.Post.NORMAL
     elif post_data['state'] == 1:
