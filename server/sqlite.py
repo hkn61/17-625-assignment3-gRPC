@@ -104,7 +104,7 @@ def insertSampleComment():
     content = "This is the content of the example comment."
     author = "user123"
     score = 8
-    status = "NORMAL"  # Assuming 'NORMAL' is a valid status in your schema
+    status = "0"  # Assuming 'NORMAL' is a valid status in your schema
     publication_date = "2023-01-01"
     parent_id = "comment567"
 
@@ -112,6 +112,23 @@ def insertSampleComment():
         cursor.execute('''INSERT INTO Comment (id, content, author, score, status, publication_date, parent_id)
                         VALUES (?, ?, ?, ?, ?, ?, ?)''', 
                     (comment_id, content, author, score, status, publication_date, parent_id))
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+
+def removeComment(comment_id):
+    try:
+        cursor.execute('''DELETE FROM Comment WHERE id = ?''', 
+                    (comment_id,))
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+
+def updateCommentStatus(comment_id, status):
+    try:
+        cursor.execute('''UPDATE Comment SET status = ?
+                        WHERE id = ?''', 
+                    (status, comment_id))
         conn.commit()
     except sqlite3.Error as e:
         print(f"Database error: {e}")
@@ -246,6 +263,8 @@ def show_all_comments():
 # insertSamplePost()
 show_all_posts()
 # insertSampleComment()
+# updateCommentStatus("comment666", "1")
+# updateCommentStatus("comment667", "0")
 show_all_comments()
 
 # conn.commit()

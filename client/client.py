@@ -19,18 +19,39 @@ class RedditClient:
         if self.channel:
             self.channel.close()
 
-    def runCreatePost(self):
-        post = reddit_pb2.Post(
-            id="post233",
-            title="reddit gRPC post 1",
-            text="This is a reddit gRPC post",
-            score=3,
-            video_url="https://www.youtube.com/watch?v=123456",
-            author="userAlex",
-            state=reddit_pb2.Post.NORMAL,
-            publication_date="2021-01-01",
-            subreddit="subreddit234"
-        )
+    def runCreatePost(self, id, title, text, score, video_url, image_url, author, state, publication_date, subreddit):
+        if state == "NORMAL":
+            state = reddit_pb2.Post.NORMAL
+        elif state == "LOCKED":
+            state = reddit_pb2.Post.LOCKED
+        else:
+            state = reddit_pb2.Post.HIDDEN
+
+        if video_url and len(video_url) > 0:
+            post = reddit_pb2.Post(
+                id=id,
+                title=title,
+                text=text,
+                score=score,
+                video_url=video_url,
+                author=author,
+                state=state,
+                publication_date=publication_date,
+                subreddit=subreddit
+            )
+        elif image_url and len(image_url) > 0:
+            post = reddit_pb2.Post(
+                id=id,
+                title=title,
+                text=text,
+                score=score,
+                image_url=image_url,
+                author=author,
+                state=state,
+                publication_date=publication_date,
+                subreddit=subreddit
+            )
+
         response = self.stub.CreatePost(reddit_pb2.CreatePostRequest(post=post))
         print("Post created:", response.post)
         return response.post
@@ -50,16 +71,22 @@ class RedditClient:
         print("Post retrieved:", response.post)
         return response.post
 
-    def runCreateComment(self):
+    def runCreateComment(self, id, content, author, score, status, publication_date, parent_id):
+        if status == "NORMAL":
+            status = reddit_pb2.Comment.NORMAL
+        else:
+            status = reddit_pb2.Comment.HIDDEN
+
         comment = reddit_pb2.Comment(
-            id="comment567",
-            content="This is a newly created comment",
-            author="userChris",
-            score=5,
-            status=reddit_pb2.Comment.NORMAL,
-            publication_date="2023-01-01",
-            parent_id="post123"
+            id=id,
+            content=content,
+            author=author,
+            score=score,
+            status=status,
+            publication_date=publication_date,
+            parent_id=parent_id
         )
+
         response = self.stub.CreateComment(reddit_pb2.CreateCommentRequest(comment=comment))
         print("Comment created:", response.comment)
         return response.comment
@@ -149,7 +176,7 @@ if __name__ == '__main__':
 
     # Create a post
     print("\n---------------- Creating post... --------------\n")
-    client.runCreatePost()
+    client.runCreatePost("post333", "reddit gRPC post 1", "This is a reddit gRPC post", 3, "https://www.youtube.com/watch?v=123456", "", "userAlex", "NORMAL", "2021-01-01", "subreddit234")
 
     # Upvote the post
     print("\n---------------- Upvote a post --------------\n")
@@ -165,7 +192,7 @@ if __name__ == '__main__':
 
     # Create a comment
     print("\n---------------- Creating comment... --------------\n")
-    client.runCreateComment()
+    client.runCreateComment("comment333", "This is a test comment", "userAlex", 0, "NORMAL", "2021-01-01", "post233")
 
     # Upvote the comment
     print("\n---------------- Upvote a comment --------------\n")

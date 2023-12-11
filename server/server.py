@@ -12,53 +12,53 @@ import reddit_pb2
 import reddit_pb2_grpc
 import sqlite
 
-posts = {
-    "post123": {
-        "id": "post123",
-        "title": "upvote post", 
-        "text": "Merry Christmas", 
-        "score": 1,
-        "video_url": "https://www.youtube.com/watch?v=123456",
-        "image_url": "",
-        "author": "userAlex",
-        "state": reddit_pb2.Post.NORMAL,
-        "publication_date": "2021-01-01",
-        "subreddit": "subreddit123"
-    },  # Example post
-    "post234": {
-        "id": "post234",
-        "title": "downvote post", 
-        "text": "Hi", 
-        "score": 5,
-        "video_url": "",
-        "image_url": "https://www.google.com/image.png",
-        "author": "userBob",
-        "state": reddit_pb2.Post.NORMAL,
-        "publication_date": "2021-01-01",
-        "subreddit": "subreddit123"
-    },  # Example post
-}
+# posts = {
+#     "post123": {
+#         "id": "post123",
+#         "title": "upvote post", 
+#         "text": "Merry Christmas", 
+#         "score": 1,
+#         "video_url": "https://www.youtube.com/watch?v=123456",
+#         "image_url": "",
+#         "author": "userAlex",
+#         "state": reddit_pb2.Post.NORMAL,
+#         "publication_date": "2021-01-01",
+#         "subreddit": "subreddit123"
+#     },  # Example post
+#     "post234": {
+#         "id": "post234",
+#         "title": "downvote post", 
+#         "text": "Hi", 
+#         "score": 5,
+#         "video_url": "",
+#         "image_url": "https://www.google.com/image.png",
+#         "author": "userBob",
+#         "state": reddit_pb2.Post.NORMAL,
+#         "publication_date": "2021-01-01",
+#         "subreddit": "subreddit123"
+#     },  # Example post
+# }
 
-comments = {
-    "comment123": {
-        "id": "comment123",
-        "content": "This is a comment",
-        "author": "userAlex",
-        "score": 2,
-        "status": reddit_pb2.Comment.NORMAL,
-        "publication_date": "2021-01-01",
-        "parent_id": "comment456"
-    },
-    "comment456": {
-        "id": "comment456",
-        "content": "This is a comment",
-        "author": "userBob",
-        "score": 3,
-        "status": reddit_pb2.Comment.NORMAL,
-        "publication_date": "2021-01-01",
-        "parent_id": "post123"
-    }
-}
+# comments = {
+#     "comment123": {
+#         "id": "comment123",
+#         "content": "This is a comment",
+#         "author": "userAlex",
+#         "score": 2,
+#         "status": reddit_pb2.Comment.NORMAL,
+#         "publication_date": "2021-01-01",
+#         "parent_id": "comment456"
+#     },
+#     "comment456": {
+#         "id": "comment456",
+#         "content": "This is a comment",
+#         "author": "userBob",
+#         "score": 3,
+#         "status": reddit_pb2.Comment.NORMAL,
+#         "publication_date": "2021-01-01",
+#         "parent_id": "post123"
+#     }
+# }
 
 post_state_map = {
     0: "NORMAL",    
@@ -94,17 +94,6 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
         state_str = post_state_map[post.state]
         # print("state_str:", state_str)
         state = self.get_state(post.state)
-        posts[post.id] = {
-            "title": post.title if post.title else "",
-            "text": post.text if post.text else "",
-            "score": post.score if post.score else 0,
-            "video_url": post.video_url if post.video_url else "",
-            "image_url": post.image_url if post.image_url else "",
-            "author": post.author if post.author else "",
-            "state": state if state else reddit_pb2.Post.NORMAL,
-            "publication_date": post.publication_date if post.publication_date else "",
-            "subreddit": post.subreddit if post.subreddit else ""
-        }
         sqlite.insertPost(post.id, post.title, post.text, post.video_url, post.image_url, post.author, post.score, post.state, post.publication_date, post.subreddit)
         return reddit_pb2.CreatePostResponse(post=post)
     
@@ -180,14 +169,6 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
     def CreateComment(self, request, context):
         comment = request.comment
         status = self.get_status(comment.status)
-        comments[comment.id] = {
-            "content": comment.content if comment.content else "",
-            "author": comment.author if comment.author else "",
-            "score": comment.score if comment.score else 0,
-            "status": comment.status if comment.status else reddit_pb2.Comment.NORMAL,
-            "publication_date": comment.publication_date if comment.publication_date else "",
-            "parent_id": comment.parent_id if comment.parent_id else ""
-        }
         sqlite.insertComment(comment.id, comment.content, comment.author, comment.score, comment.status, comment.publication_date, comment.parent_id)
         return reddit_pb2.CreateCommentResponse(comment=comment)
 
