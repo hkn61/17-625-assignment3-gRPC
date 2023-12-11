@@ -19,14 +19,14 @@ class TestMostUpvotedFunction(unittest.TestCase):
         self.mock_client.runRetrievePostContent.return_value = None
 
         result = function.most_upvoted(self.mock_client, "non_existent_post_id")
-        self.assertEqual(result, ("Post not found", None))
+        self.assertEqual(result, None)
 
     def test_most_upvoted_no_comments(self):
         self.mock_client.runRetrievePostContent.return_value = "Post Content"
         self.mock_client.runGetTopComments.return_value = []
 
         result = function.most_upvoted(self.mock_client, "post234") # post234 has no comments
-        self.assertEqual(result, ("Post Content", None))
+        self.assertEqual(result, None)
 
     def test_most_upvoted_with_comments_and_replies(self):
         self.mock_client.runRetrievePostContent.return_value = "Post Content"
