@@ -141,18 +141,41 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
             state = self.get_state(int(post[7]))
         else:
             state = post[7]
-        return reddit_pb2.RetrievePostResponse(post=reddit_pb2.Post(
-            id=post[0],
-            title=post[1],
-            text=post[2],
-            video_url=post[3],
-            image_url=post[4],
-            author=post[5],
-            score=post[6],
-            state=state,
-            publication_date=post[8],
-            subreddit=post[9]
-        ))
+        if post[3] and len(post[3]) > 0:
+            return reddit_pb2.RetrievePostResponse(post=reddit_pb2.Post(
+                id=post[0],
+                title=post[1],
+                text=post[2],
+                video_url=post[3],
+                author=post[5],
+                score=post[6],
+                state=state,
+                publication_date=post[8],
+                subreddit=post[9]
+            ))
+        elif post[4] and len(post[4]) > 0:
+            return reddit_pb2.RetrievePostResponse(post=reddit_pb2.Post(
+                id=post[0],
+                title=post[1],
+                text=post[2],
+                image_url=post[4],
+                author=post[5],
+                score=post[6],
+                state=state,
+                publication_date=post[8],
+                subreddit=post[9]
+            ))
+        else:
+            return reddit_pb2.RetrievePostResponse(post=reddit_pb2.Post(
+                id=post[0],
+                title=post[1],
+                text=post[2],
+                author=post[5],
+                score=post[6],
+                state=state,
+                publication_date=post[8],
+                subreddit=post[9]
+            ))
     
     def CreateComment(self, request, context):
         comment = request.comment
