@@ -35,13 +35,13 @@ class RedditClient:
         print("Post created:", response.post)
         return response.post
 
-    def runUpvotePost(self):
-        response = self.stub.UpvotePost(reddit_pb2.VoteRequest(post_id="post233"))
+    def runUpvotePost(self, post_id):
+        response = self.stub.UpvotePost(reddit_pb2.VoteRequest(post_id=post_id))
         print("Post upvoted:", response)
         return response.post
 
-    def runDownvotePost(self):
-        response = self.stub.DownvotePost(reddit_pb2.VoteRequest(post_id="post233"))
+    def runDownvotePost(self, post_id):
+        response = self.stub.DownvotePost(reddit_pb2.VoteRequest(post_id=post_id))
         print("Post downvoted:", response)
         return response.post
 
@@ -64,13 +64,13 @@ class RedditClient:
         print("Comment created:", response.comment)
         return response.comment
 
-    def runUpvoteComment(self):
-        response = self.stub.UpvoteComment(reddit_pb2.VoteCommentRequest(comment_id="comment233"))
+    def runUpvoteComment(self, comment_id):
+        response = self.stub.UpvoteComment(reddit_pb2.VoteCommentRequest(comment_id=comment_id))
         print("Comment upvoted:", response)
         return response.comment
 
-    def runDownvoteComment(self):
-        response = self.stub.DownvoteComment(reddit_pb2.VoteCommentRequest(comment_id="comment233"))
+    def runDownvoteComment(self, comment_id):
+        response = self.stub.DownvoteComment(reddit_pb2.VoteCommentRequest(comment_id=comment_id))
         print("Comment downvoted:", response)
         return response.comment
 
@@ -146,9 +146,49 @@ def most_upvoted(api_client, post_id):
 
 if __name__ == '__main__':
     client = RedditClient("localhost", 50051)
-    # top_reply = most_upvoted(client, "post234")
-    # print("----------- Top Reply:", top_reply if top_reply else "No replies found")
 
+    # Create a post
+    print("\n---------------- Creating post... --------------\n")
+    client.runCreatePost()
+
+    # Upvote the post
+    print("\n---------------- Upvote a post --------------\n")
+    client.runUpvotePost("post233")
+
+    # Downvote the post
+    print("\n---------------- Downvote a post --------------\n")
+    client.runDownvotePost("post233")
+
+    # Retrieve the post
+    print("\n---------------- Retrieve a post --------------\n")
+    client.runRetrievePostContent("post233")
+
+    # Create a comment
+    print("\n---------------- Creating comment... --------------\n")
+    client.runCreateComment()
+
+    # Upvote the comment
+    print("\n---------------- Upvote a comment --------------\n")
+    client.runUpvoteComment("comment233")
+
+    # Downvote the comment
+    print("\n---------------- Downvote a comment --------------\n")
+    client.runDownvoteComment("comment456")
+
+    # Retrieve the top comments
+    print("\n---------------- Retrieve top comments --------------\n")
+    client.runGetTopComments("post123", 1)
+
+    # Expand the comment branch
+    print("\n---------------- Expand comment branch --------------\n")
+    client.runExpandCommentBranch("comment456", 1)
+
+    # the high level function
+    top_reply = most_upvoted(client, "post123")
+    print("\n---------------- Top Reply: --------------\n", top_reply if top_reply else "No replies found")
+
+    # Monitor updates
+    print("\n---------------- Monitor updates --------------\n")
     client.runMonitorUpdates()
     
     # try:

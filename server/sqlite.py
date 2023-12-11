@@ -77,7 +77,6 @@ def getPostScore(post_id):
         cursor.execute('''SELECT score FROM Post WHERE id = ?''', 
                     (post_id,))
         score = cursor.fetchone()
-        print(score[0])
         return score[0]
     except sqlite3.Error as e:
         print(f"Database error: {e}")
@@ -101,13 +100,13 @@ def retrievePost(post_id):
         print(f"Database error: {e}")
 
 def insertSampleComment():
-    comment_id = "comment666"
+    comment_id = "comment667"
     content = "This is the content of the example comment."
     author = "user123"
-    score = 10
+    score = 8
     status = "NORMAL"  # Assuming 'NORMAL' is a valid status in your schema
     publication_date = "2023-01-01"
-    parent_id = "comment233"
+    parent_id = "comment567"
 
     try:
         cursor.execute('''INSERT INTO Comment (id, content, author, score, status, publication_date, parent_id)

@@ -136,8 +136,11 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
         if not sqlite.checkPostExists(post_id):
             context.abort(grpc.StatusCode.NOT_FOUND, "Post not found")
         post = sqlite.retrievePost(post_id)
-        print("post:", post)
-        print("post state: ", post_state_map[int(post[7])])
+        # print("post:", post)
+        if post[7] == '0' or post[7] == '1' or post[7] == '2':
+            state = self.get_state(int(post[7]))
+        else:
+            state = post[7]
         return reddit_pb2.RetrievePostResponse(post=reddit_pb2.Post(
             id=post[0],
             title=post[1],
@@ -146,7 +149,7 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
             image_url=post[4],
             author=post[5],
             score=post[6],
-            state=self.get_state(int(post[7])),
+            state=state,
             publication_date=post[8],
             subreddit=post[9]
         ))
@@ -181,6 +184,7 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
         if not sqlite.checkCommentExists(comment_id):
             context.abort(grpc.StatusCode.NOT_FOUND, "Comment not found")
         score = sqlite.getCommentScore(comment_id) - 1
+        sqlite.updateCommentScore(comment_id, score)
         return reddit_pb2.VoteCommentResponse(comment=reddit_pb2.Comment(
             id=comment_id,
             score=score
@@ -199,8 +203,8 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
         for comment in top_comments:
             comment_id = comment[0]
             has_replies = sqlite.checkIfCommentHasReplies(comment_id)
-            print("comment_id:", comment_id)
-            print("has_replies:", has_replies)
+            # print("comment_id:", comment_id)
+            # print("has_replies:", has_replies)
             response_comments.append(reddit_pb2.CommentWithReplies(
                 comment=reddit_pb2.Comment(
                     id=comment_id,
