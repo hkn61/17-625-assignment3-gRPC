@@ -85,8 +85,8 @@ class CommentWithReplies(_message.Message):
     COMMENT_FIELD_NUMBER: _ClassVar[int]
     HAS_REPLIES_FIELD_NUMBER: _ClassVar[int]
     comment: Comment
-    has_replies: bool
-    def __init__(self, comment: _Optional[_Union[Comment, _Mapping]] = ..., has_replies: bool = ...) -> None: ...
+    has_replies: str
+    def __init__(self, comment: _Optional[_Union[Comment, _Mapping]] = ..., has_replies: _Optional[str] = ...) -> None: ...
 
 class ExpandCommentBranchRequest(_message.Message):
     __slots__ = ["comment_id", "number_of_comments"]

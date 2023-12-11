@@ -64,7 +64,7 @@ message GetTopCommentsResponse {
 
 message CommentWithReplies {
     Comment comment = 1;
-    bool has_replies = 2;
+    string has_replies = 2;
 }
 
 message ExpandCommentBranchRequest {

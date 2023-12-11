@@ -101,13 +101,13 @@ def retrievePost(post_id):
         print(f"Database error: {e}")
 
 def insertSampleComment():
-    comment_id = "comment123"
+    comment_id = "comment666"
     content = "This is the content of the example comment."
     author = "user123"
     score = 10
     status = "NORMAL"  # Assuming 'NORMAL' is a valid status in your schema
     publication_date = "2023-01-01"
-    parent_id = "post123"
+    parent_id = "comment233"
 
     try:
         cursor.execute('''INSERT INTO Comment (id, content, author, score, status, publication_date, parent_id)
@@ -138,6 +138,15 @@ def checkCommentExists(comment_id):
     except sqlite3.Error as e:
         print(f"Database error: {e}")
 
+def retrieveComment(comment_id):
+    try:
+        cursor.execute('''SELECT * FROM Comment WHERE id = ?''', 
+                    (comment_id,))
+        comment = cursor.fetchone()
+        return comment
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+
 def getCommentScore(comment_id):
     try:
         cursor.execute('''SELECT score FROM Comment WHERE id = ?''', 
@@ -162,6 +171,27 @@ def retrieveTopComments(post_id, number_of_comments):
     try:
         cursor.execute('''SELECT * FROM Comment WHERE parent_id = ? ORDER BY score DESC LIMIT ?''', 
                     (post_id, number_of_comments))
+        comments = cursor.fetchall()
+        return comments
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        
+def checkIfCommentHasReplies(comment_id):
+    try:
+        cursor.execute('''SELECT * FROM Comment WHERE parent_id = ?''', 
+                    (comment_id,))
+        comment = cursor.fetchone()
+        if comment:
+            return True
+        else:
+            return False
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+
+def retrieveTopSubComments(comment_id, number_of_comments):
+    try:
+        cursor.execute('''SELECT * FROM Comment WHERE parent_id = ? ORDER BY score DESC LIMIT ?''', 
+                    (comment_id, number_of_comments))
         comments = cursor.fetchall()
         return comments
     except sqlite3.Error as e:
@@ -214,9 +244,9 @@ def show_all_comments():
         print(f"Database error: {e}")
 
 # initialize_database()
-# # insertSamplePost()
-# show_all_posts()
-# # insertSampleComment()
+# insertSamplePost()
+show_all_posts()
+# insertSampleComment()
 show_all_comments()
 
 # conn.commit()

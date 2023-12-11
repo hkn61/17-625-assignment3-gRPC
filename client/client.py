@@ -52,13 +52,13 @@ class RedditClient:
 
     def runCreateComment(self):
         comment = reddit_pb2.Comment(
-            id="comment233",
+            id="comment567",
             content="This is a newly created comment",
             author="userChris",
-            score=1,
+            score=5,
             status=reddit_pb2.Comment.NORMAL,
             publication_date="2023-01-01",
-            parent_id="comment456"
+            parent_id="post123"
         )
         response = self.stub.CreateComment(reddit_pb2.CreateCommentRequest(comment=comment))
         print("Comment created:", response.comment)
@@ -94,16 +94,17 @@ class RedditClient:
         # print("response.comments:", response.comments)
 
         for branch in response.comments:
-            print("Comment:", branch.comment)
+            print("Comment:\n", branch.comment)
             print("Sub Comments:")
             for sub_comment in branch.sub_comments:
-                print("\t", sub_comment)
+                print(sub_comment)
+                print()
         return response.comments
 
     def runMonitorUpdates(self):
         def request_generator():
             # Initial request with a post ID
-            yield reddit_pb2.MonitorUpdatesRequest(post_id="post123")
+            yield reddit_pb2.MonitorUpdatesRequest(post_id="post233")
 
             # Sleep for a bit before sending more requests
             time.sleep(2)
@@ -148,7 +149,7 @@ if __name__ == '__main__':
     # top_reply = most_upvoted(client, "post234")
     # print("----------- Top Reply:", top_reply if top_reply else "No replies found")
 
-    client.runDownvoteComment()
+    client.runMonitorUpdates()
     
     # try:
     #     client.runExpandCommentBranch("comment456", 1)  
