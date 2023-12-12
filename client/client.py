@@ -137,7 +137,7 @@ class RedditClient:
             time.sleep(2)
 
             # Additional requests with comment IDs
-            yield reddit_pb2.MonitorUpdatesRequest(comment_id="comment123")
+            yield reddit_pb2.MonitorUpdatesRequest(comment_id="comment111")
             time.sleep(1)
             yield reddit_pb2.MonitorUpdatesRequest(comment_id="comment456")
 
@@ -150,23 +150,24 @@ class RedditClient:
         except grpc.RpcError as e:
             print(f"gRPC error: {e.code()} - {e.details()}")
 
-def most_upvoted(api_client, post_id):
+def most_upvoted(api_client, post_id, number_of_comments=1):
     # Retrieve the post
     post = api_client.runRetrievePostContent(post_id)
     if not post:
-        return "Post not found", None
+        return None
 
     # Retrieve the most upvoted comments under the post
-    top_comments = api_client.runGetTopComments(post_id, 1)
+    top_comments = api_client.runGetTopComments(post_id, number_of_comments)
     if not top_comments:
-        return post, None
+        return None
 
     # Expand the most upvoted comment (assuming top_comments is a list)
     # most_upvoted_comment = top_comments[0]
 
     # Retrieve the most upvoted reply under the most upvoted comment
-    print("top_comments:", top_comments[0].comment.id)
-    most_upvoted_reply = api_client.runExpandCommentBranch(top_comments[0].comment.id, 1)
+    # print("top_comments:", top_comments[0].comment.id)
+    most_upvoted_reply = api_client.runExpandCommentBranch(top_comments[0].comment.id, number_of_comments)
+    print("~~~~~~~~~~ most_upvoted_reply:\n", most_upvoted_reply)
 
     # return post, most_upvoted_reply
     return most_upvoted_reply
@@ -211,8 +212,8 @@ if __name__ == '__main__':
     client.runExpandCommentBranch("comment456", 1)
 
     # the high level function
-    top_reply = most_upvoted(client, "post123")
-    print("\n---------------- Top Reply: --------------\n", top_reply if top_reply else "No replies found")
+    print("\n---------------- Top Reply: --------------\n")
+    top_reply = most_upvoted(client, "post123", 2)
 
     # Monitor updates
     print("\n---------------- Monitor updates --------------\n")

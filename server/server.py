@@ -104,10 +104,47 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
             context.abort(grpc.StatusCode.NOT_FOUND, "Post not found")
         score = sqlite.getPostScore(post_id) + 1
         sqlite.updatePostScore(post_id, score)
-        return reddit_pb2.VoteResponse(post=reddit_pb2.Post(
-            id=post_id,
-            score=score
-        ))
+        post = sqlite.retrievePost(post_id)
+        # print("post:", post)
+        if post[7] == '0' or post[7] == '1' or post[7] == '2':
+            state = self.get_state(int(post[7]))
+        else:
+            state = post[7]
+        if post[3] and len(post[3]) > 0:
+            return reddit_pb2.RetrievePostResponse(post=reddit_pb2.Post(
+                id=post[0],
+                title=post[1],
+                text=post[2],
+                video_url=post[3],
+                author=post[5],
+                score=post[6],
+                state=state,
+                publication_date=post[8],
+                subreddit=post[9]
+            ))
+        elif post[4] and len(post[4]) > 0:
+            return reddit_pb2.RetrievePostResponse(post=reddit_pb2.Post(
+                id=post[0],
+                title=post[1],
+                text=post[2],
+                image_url=post[4],
+                author=post[5],
+                score=post[6],
+                state=state,
+                publication_date=post[8],
+                subreddit=post[9]
+            ))
+        else:
+            return reddit_pb2.RetrievePostResponse(post=reddit_pb2.Post(
+                id=post[0],
+                title=post[1],
+                text=post[2],
+                author=post[5],
+                score=post[6],
+                state=state,
+                publication_date=post[8],
+                subreddit=post[9]
+            ))
     
     def DownvotePost(self, request, context):
         post_id = request.post_id
@@ -115,10 +152,47 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
             context.abort(grpc.StatusCode.NOT_FOUND, "Post not found")
         score = sqlite.getPostScore(post_id) - 1
         sqlite.updatePostScore(post_id, score)
-        return reddit_pb2.VoteResponse(post=reddit_pb2.Post(
-            id=post_id,
-            score=score
-        ))
+        post = sqlite.retrievePost(post_id)
+        # print("post:", post)
+        if post[7] == '0' or post[7] == '1' or post[7] == '2':
+            state = self.get_state(int(post[7]))
+        else:
+            state = post[7]
+        if post[3] and len(post[3]) > 0:
+            return reddit_pb2.RetrievePostResponse(post=reddit_pb2.Post(
+                id=post[0],
+                title=post[1],
+                text=post[2],
+                video_url=post[3],
+                author=post[5],
+                score=post[6],
+                state=state,
+                publication_date=post[8],
+                subreddit=post[9]
+            ))
+        elif post[4] and len(post[4]) > 0:
+            return reddit_pb2.RetrievePostResponse(post=reddit_pb2.Post(
+                id=post[0],
+                title=post[1],
+                text=post[2],
+                image_url=post[4],
+                author=post[5],
+                score=post[6],
+                state=state,
+                publication_date=post[8],
+                subreddit=post[9]
+            ))
+        else:
+            return reddit_pb2.RetrievePostResponse(post=reddit_pb2.Post(
+                id=post[0],
+                title=post[1],
+                text=post[2],
+                author=post[5],
+                score=post[6],
+                state=state,
+                publication_date=post[8],
+                subreddit=post[9]
+            ))
     
     def RetrievePostContent(self, request, context):
         post_id = request.post_id
@@ -178,9 +252,14 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
             context.abort(grpc.StatusCode.NOT_FOUND, "Comment not found")
         score = sqlite.getCommentScore(comment_id) + 1
         sqlite.updateCommentScore(comment_id, score)
+        comment = sqlite.retrieveComment(comment_id)
         return reddit_pb2.VoteCommentResponse(comment=reddit_pb2.Comment(
             id=comment_id,
-            score=score
+            content=comment[1],
+            author=comment[2],
+            score=comment[3],
+            parent_id=comment[4],
+            publication_date=comment[5]
         ))
     
     def DownvoteComment(self, request, context):
@@ -189,9 +268,14 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
             context.abort(grpc.StatusCode.NOT_FOUND, "Comment not found")
         score = sqlite.getCommentScore(comment_id) - 1
         sqlite.updateCommentScore(comment_id, score)
+        comment = sqlite.retrieveComment(comment_id)
         return reddit_pb2.VoteCommentResponse(comment=reddit_pb2.Comment(
             id=comment_id,
-            score=score
+            content=comment[1],
+            author=comment[2],
+            score=comment[3],
+            parent_id=comment[4],
+            publication_date=comment[5]
         ))
     
     def GetTopComments(self, request, context):

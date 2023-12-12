@@ -30,6 +30,16 @@ def initialize_database():
                         parent_id TEXT
                       )''')
 
+    cursor.execute('''CREATE TABLE IF NOT EXISTS Subreddit (
+                        id TEXT PRIMARY KEY,
+                        name TEXT NOT NULL,
+                        visibility TEXT NOT NULL,
+                        tags TEXT
+                      )''')
+    
+    cursor.execute('''CREATE TABLE IF NOT EXISTS User (
+                        id TEXT PRIMARY KEY
+                      )''')
     # conn.commit()
     # conn.close()
 
