@@ -28,6 +28,16 @@ class TestMostUpvotedFunction(unittest.TestCase):
         result = function.most_upvoted(self.mock_client, "post234") # post234 has no comments
         self.assertEqual(result, None)
 
+    def test_most_upvoted_with_comments_no_replies(self):
+        self.mock_client.runRetrievePostContent.return_value = "Post Content"
+        mock_comment = Mock()
+        mock_comment.comment.id = "comment345"
+        self.mock_client.runGetTopComments.return_value = [mock_comment]
+        self.mock_client.runExpandCommentBranch.return_value = []
+
+        result = function.most_upvoted(self.mock_client, "post123")
+        self.assertEqual(result, [])
+
     def test_most_upvoted_with_comments_and_replies(self):
         self.mock_client.runRetrievePostContent.return_value = "Post Content"
         mock_comment = Mock()
